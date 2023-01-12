@@ -115,7 +115,6 @@ if [ "$1" == '' ]
 then
 	echo -en "Domain: "
 	read DOMAIN
-	exit
 else
 	DOMAIN=$1
 	CONFIG_FILE=$2
