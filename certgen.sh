@@ -1,8 +1,8 @@
 #!/bin/bash
 ########################################
 # Author: F. Bischof (frank@meer-web.nl)
-# Version: 1.4.0
-# Date: 29-12-2022
+# Version: 1.4.1
+# Date: 12-01-2022
 ########################################
 ENCRYPTION="sha256"
 BITS="rsa:2048"
