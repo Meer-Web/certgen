@@ -1,7 +1,7 @@
 #!/bin/bash
 ########################################
 # Author: F. Bischof (frank@meer-web.nl)
-# Version: 1.4.1
+# Version: 1.4.2
 # Date: 12-01-2022
 ########################################
 ENCRYPTION="sha256"
@@ -115,21 +115,21 @@ if [ "$1" == '' ]
 then
 	echo -en "Domain: "
 	read DOMAIN
-else
-	DOMAIN=$1
-	CONFIG_FILE=$2
-	# Show options menu
-	echo "1. Create self signed certificate"
-	echo "2. Create CSR";
-	echo "3. Create PFX file"
-	echo "4. Extract PFX to CRT/KEY"
-	echo "5. Create CA-Bundle and PEM files"
-	echo "6. Remove password from KEY file"
-	echo "7. Decode CSR"
-	echo "8. Decode CRT"
-	echo "9. Match CRT/KEY"
-	echo -en "Option: "; read OPTION
 fi
+
+DOMAIN=$1
+CONFIG_FILE=$2
+# Show options menu
+echo "1. Create self signed certificate"
+echo "2. Create CSR";
+echo "3. Create PFX file"
+echo "4. Extract PFX to CRT/KEY"
+echo "5. Create CA-Bundle and PEM files"
+echo "6. Remove password from KEY file"
+echo "7. Decode CSR"
+echo "8. Decode CRT"
+echo "9. Match CRT/KEY"
+echo -en "Option: "; read OPTION
 
 case ${OPTION} in
 	1) create_ssc ;;
