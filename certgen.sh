@@ -1,8 +1,8 @@
 #!/bin/bash
 ########################################
 # Author: F. Bischof (frank@meer-web.nl)
-# Version: 1.4.2
-# Date: 12-01-2022
+# Version: 1.4.3
+# Date: 09-05-2023
 ########################################
 ENCRYPTION="sha256"
 BITS="rsa:2048"
@@ -115,10 +115,11 @@ if [ "$1" == '' ]
 then
 	echo -en "Domain: "
 	read DOMAIN
+else
+	DOMAIN=$1
+	CONFIG_FILE=$2
 fi
 
-DOMAIN=$1
-CONFIG_FILE=$2
 # Show options menu
 echo "1. Create self signed certificate"
 echo "2. Create CSR";
