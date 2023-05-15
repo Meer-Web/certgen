@@ -1,7 +1,7 @@
 # Certificate Generator
 
 ## Howto
-certgen {domain.tld} [domain.config]
+./certgen
 
 ## Description
 1. Create self signed certificate
