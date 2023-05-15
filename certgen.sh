@@ -1,13 +1,15 @@
 #!/bin/bash
 ########################################
 # Author: F. Bischof (frank@meer-web.nl)
-# Version: 1.4.3
-# Date: 09-05-2023
+# Version: 1.5.0
+# Date: 15-05-2023
 ########################################
 ENCRYPTION="sha256"
 BITS="rsa:2048"
 
 function create_csr {
+	echo -en "Domain: "; read DOMAIN
+	echo -en "Config file (optional): "; read CONFIG
 	if [ "${CONFIG}" != "" ]
 	then
 		openssl req -utf8 -nodes -${ENCRYPTION} -newkey ${BITS} -keyout ${DOMAIN}.key -out ${DOMAIN}.csr -config ${CONFIG_FILE} -extensions 'req_ext'
@@ -18,6 +20,7 @@ function create_csr {
 }
 
 function create_ssc {
+	echo -en "Domain: "; read DOMAIN
 	echo -en "How many years should it be valid: "; read YEARSVALID
 	YEARSVALID=$(($YEARSVALID * 365))
 	openssl req -x509 -nodes -days ${YEARSVALID} -newkey ${BITS} -keyout ${DOMAIN}.key -out ${DOMAIN}.crt -${ENCRYPTION}
@@ -25,34 +28,38 @@ function create_ssc {
 }
 
 function create_pfx {
+	echo -en "PFX output filename: "; read PFX_FILE
 	echo -en "Domain certificate path: "; read DOMAIN_CERT
 	echo -en "Domain key path: "; read DOMAIN_KEY
 	echo -en "Intermediate certificate path (optional): "; read INT_CERT
 	if [ "${INT_CERT}" != "" ];
 	then
 		echo -en "Root certificate path: "; read ROOT_CERT
-		cat ${INT_CERT} ${ROOT_CERT} > bundle-ca.crt; BUNDLE_CERT="bundle-ca.crt"
-		openssl pkcs12 -export -in ${DOMAIN_CERT} -out ${DOMAIN}.pfx -inkey ${DOMAIN_KEY} -certfile ${BUNDLE_CERT}
+		cat ${INT_CERT} ${ROOT_CERT} > bundle-ca.crt;
+		BUNDLE_CERT="bundle-ca.crt"
+		openssl pkcs12 -export -in ${DOMAIN_CERT} -out ${PFX_FILE}.pfx -inkey ${DOMAIN_KEY} -certfile ${BUNDLE_CERT}
 	else
-		openssl pkcs12 -export -in ${DOMAIN_CERT} -out ${DOMAIN}.pfx -inkey ${DOMAIN_KEY}
+		openssl pkcs12 -export -in ${DOMAIN_CERT} -out ${PFX_FILE}.pfx -inkey ${DOMAIN_KEY}
 	fi
-	echo "File ${DOMAIN}.pfx created!"
+	echo "File ${PFX_FILE}.pfx created!"
 }
 
 function extract_pfx {
 	echo -en "PFX path: "; read PFX_CERT
-	openssl pkcs12 -in ${PFX_CERT} -nocerts -out ${DOMAIN}.key -nodes
-	openssl pkcs12 -in ${PFX_CERT} -nokeys -out ${DOMAIN}.crt
-	echo "Files ${DOMAIN}.key and ${DOMAIN}.crt created from PFX"
+	FILENAME="`PFX_CERT | sed 's/\.pfx//'`"
+	openssl pkcs12 -in ${PFX_CERT} -nocerts -out ${FILENAME}.key -nodes
+	openssl pkcs12 -in ${PFX_CERT} -nokeys -out ${FILENAME}.crt
+	echo "Files ${FILENAME}.key and ${FILENAME}.crt created from PFX"
 }
 
 function remove_pw {
-	echo -en "Domain key path (optional): "; read DOMAIN_KEY
+	echo -en "Key path: "; read DOMAIN_KEY
 	openssl rsa -in ${DOMAIN_KEY} -out decrypted-${DOMAIN_KEY}
 	echo "File decrypted-${DOMAIN_KEY} created!"
 }
 
 function create_all {
+	echo -en "Domain: "; read DOMAIN
 	echo -en "Domain certificate path: "; read DOMAIN_CERT
 	echo -en "Domain key path (optional): "; read DOMAIN_KEY
 	echo -en "Intermediate certificate path: "; read INT_CERT
@@ -104,21 +111,6 @@ function match_crtkey {
 		echo -e "\nCertificate and key are NOT matching!"
 	fi
 }
-
-if [ "$1" == '--help' ];
-then
-	echo "Usage: $0 [domain.tld] [config]"
-	exit 0
-fi
-
-if [ "$1" == '' ]
-then
-	echo -en "Domain: "
-	read DOMAIN
-else
-	DOMAIN=$1
-	CONFIG_FILE=$2
-fi
 
 # Show options menu
 echo "1. Create self signed certificate"
