@@ -1,8 +1,8 @@
 #!/bin/bash
 ########################################
 # Author: F. Bischof (frank@meer-web.nl)
-# Version: 1.5.1
-# Date: 24-05-2023
+# Version: 1.5.2
+# Date: 02-06-2023
 ########################################
 ENCRYPTION="sha256"
 BITS="rsa:2048"
@@ -46,7 +46,7 @@ function create_pfx {
 
 function extract_pfx {
 	echo -en "PFX path: "; read PFX_CERT
-	FILENAME="`PFX_CERT | sed 's/\.pfx//'`"
+	FILENAME="`${PFX_CERT} | sed 's/\.pfx//'`"
 	openssl pkcs12 -in ${PFX_CERT} -nocerts -out ${FILENAME}.key -nodes
 	openssl pkcs12 -in ${PFX_CERT} -nokeys -out ${FILENAME}.crt
 	echo "Files ${FILENAME}.key and ${FILENAME}.crt created from PFX"
@@ -69,24 +69,33 @@ function create_all {
 	then
 		touch ${DOMAIN}.pem
 		cat ${DOMAIN_KEY} > ${DOMAIN}.pem
+		echo "" >> ${DOMAIN}.pem
 		cat ${DOMAIN_CERT} >> ${DOMAIN}.pem
+		echo "" >> ${DOMAIN}.pem
 		cat ${INT_CERT} >> ${DOMAIN}.pem
+		echo "" >> ${DOMAIN}.pem
 		cat ${ROOT_CERT} >> ${DOMAIN}.pem
+		echo "" >> ${DOMAIN}.pem
+		sed '/^$/d' -i ${DOMAIN}.pem
 		echo "${DOMAIN}.pem (key, domain, intermediate, root) created"
 	fi
 	# Create BUNDLE-CA
 	touch bundle-ca.crt
 	cat ${INT_CERT} >> bundle-ca.crt
+	echo "" >> bundle-ca.crt
 	cat ${ROOT_CERT} >> bundle-ca.crt
+	sed '/^$/d' -i bundle-ca.crt
 	echo "bundle-ca created (intermediate, root)"
 	# Create domain bundle
 	touch bundle.crt
 	cat ${DOMAIN_CERT} >> bundle.crt
+	echo "" >> bundle.crt
 	cat ${INT_CERT} >> bundle.crt
+	echo "" >> bundle.crt
 	cat ${ROOT_CERT} >> bundle.crt
+	echo "" >> bundle.crt
+	sed '/^$/d' -i bundle.crt
 	echo "bundle.crt (domain, intermediate, root) created"
-
-
 }
 
 function decode_csr {
